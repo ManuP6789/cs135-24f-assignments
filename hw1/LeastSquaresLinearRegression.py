@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: Manuel Pena
+# @Date:   2024-09-05 22:24:39
+# @Last Modified by:   Manuel Pena
+# @Last Modified time: 2024-09-25 11:05:42
 '''
 Test Case
 ---------
@@ -74,11 +79,16 @@ class LeastSquaresLinearRegressor(object):
             \min_{w \in \mathbb{R}^F, b \in \mathbb{R}}
                 \sum_{n=1}^N (y_n - b - \sum_f x_{nf} w_f)^2
         '''      
-        N, F = x_NF.shape
         
-        # Hint: Use np.linalg.solve
-        # Using np.linalg.inv may cause issues (see day03 lab) 
-        pass # TODO fixme
+        N, F = x_NF.shape
+        x_NF_1 = np.hstack([x_NF, np.ones((N, 1))])
+
+        least_squares = np.linalg.solve(np.dot(x_NF_1.T, x_NF_1), np.dot(x_NF_1.T, y_N))
+
+        self.b = least_squares[-1]
+        self.w_F = least_squares[:-1]
+
+        pass 
 
 
     def predict(self, x_MF):
@@ -95,41 +105,9 @@ class LeastSquaresLinearRegressor(object):
         yhat_M : 1D array, size M
             Each value is the predicted scalar for one example
         '''
-        # TODO FIX ME
-        return np.asarray([0.0])
+        
+        M, F = x_MF.shape
+        x_MF_1 = np.hstack([x_MF, np.ones((M, 1))])
+        yhat_N = x_MF_1 @ np.concatenate([self.w_F, [self.b]]) 
+        return yhat_N
 
-
-
-
-def test_on_toy_data(N=100):
-    '''
-    Simple example use case
-    With toy dataset with N=100 examples
-    created via a known linear regression model plus small noise
-    '''
-    prng = np.random.RandomState(0)
-
-    true_w_F = np.asarray([1.1, -2.2, 3.3])
-    true_b = 0.0
-    x_NF = prng.randn(N, 3)
-    y_N = true_b + np.dot(x_NF, true_w_F) + 0.03 * prng.randn(N)
-
-    linear_regr = LeastSquaresLinearRegressor()
-    linear_regr.fit(x_NF, y_N)
-
-    yhat_N = linear_regr.predict(x_NF)
-
-    np.set_printoptions(precision=3, formatter={'float':lambda x: '% .3f' % x})
-
-    print("True weights")
-    print(true_w_F)
-    print("Estimated weights")
-    print(linear_regr.w_F)
-
-    print("True intercept")
-    print(np.asarray([true_b]))
-    print("Estimated intercept")
-    print(np.asarray([linear_regr.b]))
-
-if __name__ == '__main__':
-    test_on_toy_data()

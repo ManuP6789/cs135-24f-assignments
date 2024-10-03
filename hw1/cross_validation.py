@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: Manuel Pena
+# @Date:   2024-09-05 22:24:39
+# @Last Modified by:   Manuel Pena
+# @Last Modified time: 2024-09-24 23:17:58
 import numpy as np
 
 from performance_metrics import calc_root_mean_squared_error
@@ -58,11 +63,19 @@ def train_models_and_calc_scores_for_n_fold_cv(
     train_error_per_fold = np.zeros(n_folds, dtype=np.float32)
     test_error_per_fold = np.zeros(n_folds, dtype=np.float32)
 
-    # TODO define the folds here by calling your function
-    # e.g. ... = make_train_and_test_row_ids_for_n_fold_cv(...)
+    train_ids_per_fold, test_ids_per_fold = make_train_and_test_row_ids_for_n_fold_cv(y_N.shape[0], n_folds, random_state)
 
-    # TODO loop over folds and compute the train and test error
-    # for the provided estimator
+    for fold in range(n_folds):
+        train_ids = train_ids_per_fold[fold]
+        test_ids = test_ids_per_fold[fold]
+
+        estimator.fit(x_NF[train_ids], y_N[train_ids]) 
+        
+        yhat_Test = estimator.predict(x_NF[test_ids])
+        yhat_Train = estimator.predict(x_NF[train_ids])
+
+        train_error_per_fold[fold] = calc_root_mean_squared_error(y_N[train_ids], yhat_Train)
+        test_error_per_fold[fold] = calc_root_mean_squared_error(y_N[test_ids], yhat_Test)
 
     return train_error_per_fold, test_error_per_fold
 
@@ -135,12 +148,15 @@ def make_train_and_test_row_ids_for_n_fold_cv(
         # Handle case where we pass "seed" for a PRNG as an integer
         random_state = np.random.RandomState(int(random_state))
 
-    # TODO obtain a shuffled order of the n_examples
+    shuffled_ids = random_state.permutation(n_examples)
 
     train_ids_per_fold = list()
     test_ids_per_fold = list()
+
+    test_ids_per_fold = np.array_split(shuffled_ids, n_folds)
     
-    # TODO establish the row ids that belong to each fold's
-    # train subset and test subset
+    for test_ids in test_ids_per_fold:
+        train_ids = np.setdiff1d(shuffled_ids, test_ids)
+        train_ids_per_fold.append(train_ids)
 
     return train_ids_per_fold, test_ids_per_fold

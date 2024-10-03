@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: Manuel Pena
+# @Date:   2024-09-05 22:24:39
+# @Last Modified by:   Your name
+# @Last Modified time: 2024-09-13 10:46:24
 '''
 Test Cases
 --------
@@ -37,5 +42,8 @@ def calc_root_mean_squared_error(y_N, yhat_N):
     yhat_N = np.atleast_1d(yhat_N)
     assert y_N.ndim == 1
     assert y_N.shape == yhat_N.shape
-    return 0.0  # TODO fixme
+
+    rms = np.sqrt(((y_N - yhat_N) ** 2).mean())
+    
+    return rms  
 

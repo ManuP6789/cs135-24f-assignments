@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: Manuel Pena
+# @Date:   2024-09-25 11:02:33
+# @Last Modified by:   Manuel Pena
+# @Last Modified time: 2024-10-04 23:13:07
 '''
 calc_binary_metrics
 
@@ -58,11 +63,12 @@ def calc_TP_TN_FP_FN(ytrue_N, yhat_N):
     yhat_N = np.asarray(yhat_N, dtype=np.int32)
     
     # TODO fix by calculating the number of true pos, true neg, etc.
-    TP  = 0
-    TN = 0
-    FP = 0
-    FN = 0
-    return None  # TODO fix me
+    TP = int(np.sum((ytrue_N == 1) & (yhat_N == 1))) 
+    TN = int(np.sum((ytrue_N == 0) & (yhat_N == 0)))
+    FP = int(np.sum((ytrue_N == 0) & (yhat_N == 1)))
+    FN = int(np.sum((ytrue_N == 1) & (yhat_N == 0)))
+    
+    return TP, TN, FP, FN  # TODO fix me
 
 
 def calc_ACC(ytrue_N, yhat_N):
@@ -94,11 +100,16 @@ def calc_ACC(ytrue_N, yhat_N):
     >>> print("%.3f" % acc)
     0.625
     '''
+
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+
+    acc = (TP + TN) / (TP + TN + FP + FN + 1e-10)
+
     # TODO compute accuracy
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+    return acc  # TODO fix me
 
 
 
@@ -142,7 +153,11 @@ def calc_TPR(ytrue_N, yhat_N):
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+    tpr = TP / (TP + FN + 1e-10)
+    
+    return tpr  # TODO fix me
 
 
 def calc_PPV(ytrue_N, yhat_N):
@@ -185,5 +200,9 @@ def calc_PPV(ytrue_N, yhat_N):
     # You should *use* your calc_TP_TN_FP_FN function from above
     # Hint: make sure denominator will never be exactly zero
     # by adding a small value like 1e-10
-    return None  # TODO fix me
+
+    TP, TN, FP, FN = calc_TP_TN_FP_FN(ytrue_N, yhat_N)
+    ppv = TP / (TP + FP + 1e-10)
+    
+    return ppv  # TODO fix me
 

@@ -117,7 +117,13 @@ class InternalDecisionNode(object):
         
         # TODO aggregate all predictions and return one array
         # Hint: Make sure to preserve the order of examples as in the input.
-        yhat_T = 1.2345 * np.ones(T, dtype=np.float64) # TODO fixme
+        left_mask = x_TF[:, feat_id] < thresh_val
+
+        right_mask = np.logical_not(left_mask)
+        yhat_T = np.empty(x_TF.shape[0], dtype=np.float64)
+
+        yhat_T[left_mask] = self.left_child.predict(x_TF[left_mask])
+        yhat_T[right_mask] = self.right_child.predict(x_TF[right_mask])
         return yhat_T
 
 
@@ -181,7 +187,7 @@ class LeafNode(object):
         # TODO return one array with prediction determined by training set
         # Hint: Use this node's attribute "y_N", accessed by "self.y_N"
         # This is an array of all y values that reach this leaf in train set.
-        yhat_T = -1.2345 * np.ones(T) # TODO fixme
+        yhat_T = np.mean(self.y_N) * np.ones(T) # TODO fixme
         return yhat_T
 
 

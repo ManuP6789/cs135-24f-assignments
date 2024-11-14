@@ -105,20 +105,18 @@ def predict_n_hidden_layer(
     # Forward propagation: start from the input layer
     out_arr = x_NF
 
-    for layer_id in range(n_layers - 1):
+    for layer_id in range(n_layers-1):
         # Get w and b arrays for current layer
         w_arr = w_list[layer_id]
         b_arr = b_list[layer_id]
 
         # Perform the linear operation: X · w + b
-        out_arr = np.dot(out_arr, w_arr + b_arr)
+        out_arr = np.dot(out_arr, w_arr) + b_arr
 
         # Perform the non-linear activation of current layer
         out_arr = hidden_activation(out_arr)
         
     out_arr = np.dot(out_arr, w_list[-1]) + b_list[-1]
-    out_arr = output_activation(out_arr)
+    out_arr = output_activation(out_arr) 
 
-    out_arr = np.squeeze(out_arr)  # reduce unnecessary dimension for single output
-
-    return out_arr
+    return np.squeeze(out_arr)

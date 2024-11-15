@@ -117,7 +117,7 @@ class InternalDecisionNode(object):
         
         # TODO aggregate all predictions and return one array
         # Hint: Make sure to preserve the order of examples as in the input.
-        left_mask = x_TF[:, feat_id] < thresh_val
+        left_mask = x_TF[:, self.feat_id] < self.thresh_val
 
         right_mask = np.logical_not(left_mask)
         yhat_T = np.empty(x_TF.shape[0], dtype=np.float64)

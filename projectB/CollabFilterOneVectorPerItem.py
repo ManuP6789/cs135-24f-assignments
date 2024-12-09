@@ -60,7 +60,6 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
             U=0.001 * random_state.randn(n_users, self.n_factors), # FIX dimensionality
             V=0.001 * random_state.randn(n_items, self.n_factors), # FIX dimensionality
             )
-        self.param_dict
 
 
     def predict(self, user_id_N, item_id_N,
@@ -86,7 +85,8 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         yhat_N = ag_np.ones(N)
         if mu is None:
             mu = self.param_dict['mu']
-        yhat_N = ag_np.fill(N, mu)
+        yhat_N = (mu + b_per_user[user_id_N] + c_per_item[item_id_N] + ag_np.sum(U[user_id_N] * V[item_id_N], axis=1)
+)
         return yhat_N
 
 
@@ -108,7 +108,7 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         y_N = data_tuple[2]
         yhat_N = self.predict(data_tuple[0], data_tuple[1], **param_dict)
 
-        reg_loss = self.alpha(ag_np.sum.param_dict('b_per_user')**2 + ag_np.sum(param_dict['c_per_item'])**2)
+        reg_loss = self.alpha * (ag_np.sum.param_dict('b_per_user')**2 + ag_np.sum(param_dict['c_per_item'])**2)
         loss_total = ag_np.mean((y_N - yhat_N)**2)
         return loss_total + reg_loss
 

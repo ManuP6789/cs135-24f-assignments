@@ -80,15 +80,22 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
             Scalar predicted ratings, one per provided example.
             Entry n is for the n-th pair of user_id, item_id values provided.
         '''
-        # TODO: Update with actual prediction logic
         N = user_id_N.size
         yhat_N = ag_np.ones(N)
         if mu is None:
             mu = self.param_dict['mu']
-        yhat_N = (mu + b_per_user[user_id_N] + c_per_item[item_id_N] + ag_np.sum(U[user_id_N] * V[item_id_N], axis=1)
-)
-        return yhat_N
+        if b_per_user is None:
+            b_per_user = self.param_dict['b_per_user']
+        if c_per_item is None:
+            c_per_item = self.param_dict['c_per_item']
+        if U is None:
+            U = self.param_dict['U']
+        if V is None:
+            V = self.param_dict['V']
 
+        # TODO: Update with actual prediction logic
+        yhat_N = ag_np.full(N, mu + b_per_user[user_id_N] + c_per_item[user_id_N] + ag_np.sum(ag_np.dot(U, V.T)))
+        return yhat_N
 
     def calc_loss_wrt_parameter_dict(self, param_dict, data_tuple):
         ''' Compute loss at given parameters
@@ -108,9 +115,9 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         y_N = data_tuple[2]
         yhat_N = self.predict(data_tuple[0], data_tuple[1], **param_dict)
 
-        reg_loss = self.alpha * (ag_np.sum.param_dict('b_per_user')**2 + ag_np.sum(param_dict['c_per_item'])**2)
-        loss_total = ag_np.mean((y_N - yhat_N)**2)
-        return loss_total + reg_loss
+        reg_loss = self.alpha * (ag_np.sum(param_dict['U']**2) + ag_np.sum(param_dict['V']**2))
+        pred_loss = ag_np.mean((y_N - yhat_N)**2)
+        return pred_loss + reg_loss
 
 
 if __name__ == '__main__':

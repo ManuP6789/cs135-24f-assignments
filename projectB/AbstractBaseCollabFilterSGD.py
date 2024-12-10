@@ -399,3 +399,4 @@ class RatingsMiniBatchIterator(object):
         This method tells python that this object supports this.
         '''
         return self
+

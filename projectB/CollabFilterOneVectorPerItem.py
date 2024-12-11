@@ -93,9 +93,10 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         if V is None:
             V = self.param_dict['V']
 
-        # TODO: Update with actual prediction logic
-        yhat_N = ag_np.full(N, mu + b_per_user[user_id_N] + c_per_item[user_id_N] + ag_np.sum(ag_np.dot(U, V.T)))
-        return yhat_N
+        baseline_N = mu + b_per_user[user_id_N] + c_per_item[item_id_N]
+        interaction_N = ag_np.sum(U[user_id_N] * V[item_id_N], axis=1)
+        # return ag_np.full(N, mu + b_per_user[user_id_N] + c_per_item[item_id_N] + ag_np.sum(ag_np.dot(U, V.T)))
+        return baseline_N + interaction_N
 
     def calc_loss_wrt_parameter_dict(self, param_dict, data_tuple):
         ''' Compute loss at given parameters
@@ -115,7 +116,7 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         y_N = data_tuple[2]
         yhat_N = self.predict(data_tuple[0], data_tuple[1], **param_dict)
 
-        reg_loss = self.alpha * (ag_np.sum(param_dict['U']**2) + ag_np.sum(param_dict['V']**2))
+        reg_loss = self.alpha * (ag_np.sum((param_dict['V'])**2) + ag_np.sum((param_dict['U'])**2))
         pred_loss = ag_np.mean((y_N - yhat_N)**2)
         return pred_loss + reg_loss
 
@@ -128,8 +129,8 @@ if __name__ == '__main__':
     # Create the model and initialize its parameters
     # to have right scale as the dataset (right num users and items)
     model = CollabFilterOneVectorPerItem(
-        n_epochs=10, batch_size=10000, step_size=0.1,
-        n_factors=2, alpha=0.0)
+        n_epochs=100, batch_size=300, step_size=10,
+        n_factors=2, alpha=0.2)
     model.init_parameter_dict(n_users, n_items, train_tuple)
 
     # Fit the model with SGD
